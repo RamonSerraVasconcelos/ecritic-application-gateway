@@ -1,0 +1,70 @@
+services:
+  ecritic_postgres:
+    image: postgres:16
+    container_name: ecritic_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - ecritic_postgres_data:/var/lib/postgresql/data
+  ecritic_mongodb:
+    image: mongo:latest
+    container_name: ecritic_mongodb
+    restart: always
+    environment:
+     MONGO_INITDB_ROOT_USERNAME: root
+     MONGO_INITDB_ROOT_PASSWORD: root
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+  ecritic_zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: ecritic_zookeeper
+    ports:
+      - 2181:2181
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - ZOOKEEPER_TICK_TIME=2000
+      - ALLOW_ANONYMOUS_LOGIN=yes
+  ecritic_kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: ecritic_kafka
+    restart: on-failure
+    ports:
+      - 9092:9092
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=ecritic_zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://ecritic_kafka:29092,PLAINTEXT_HOST://localhost:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_BROKER_ID=1
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - ecritic_zookeeper
+  ecritic_kafka_ui:
+    image: provectuslabs/kafka-ui
+    container_name: ecritic_kafka_ui
+    depends_on:
+      - ecritic_zookeeper
+      - ecritic_kafka
+    ports:
+      - "8000:8080"
+    restart: always
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=ecritic
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=ecritic_kafka:29092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=ecritic_zookeeper:2181
+  ecritic_redis:
+    image: "redis:7.2"
+    command: redis-server --requirepass af1ce60c0f7
+    ports:
+      - "6379:6379"
+volumes:
+  mongodb_data:
+  ecritic_postgres_data:
+    driver: local

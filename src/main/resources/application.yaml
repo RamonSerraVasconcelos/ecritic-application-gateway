@@ -1,0 +1,12 @@
+server:
+  port: 8080
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: DEBUG
+application:
+  properties:
+    services:
+      ecritic-users-service-address: ${ECRITIC_USERS_SERVICE_ADDRESS:http://localhost:8081}
+      ecritic-authentication-service-address: ${ECRITIC_AUTHENTICATION_SERVICE_ADDRESS:http://localhost:8082}
+
