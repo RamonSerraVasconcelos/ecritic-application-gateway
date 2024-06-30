@@ -20,12 +20,18 @@ public class RouteConfiguration {
     public RouteLocator routes(RouteLocatorBuilder builder) {
 
         final String USERS_SERVICE = serviceProperties.getEcriticUsersServiceAddress();
+        final String AUTHENTICATION_SERVICE = serviceProperties.getEcriticAuthenticationServiceAddress();
 
         return builder.routes()
                 .route("register", r -> r.path("/users")
                         .and()
                         .method(HttpMethod.POST)
                         .uri(USERS_SERVICE + "/users"))
+
+                .route("login", r -> r.path("/auth/login")
+                        .and()
+                        .method(HttpMethod.POST)
+                        .uri(AUTHENTICATION_SERVICE + "/auth/login"))
 
                 .route("users", r -> r.path("/users")
                         .uri(USERS_SERVICE + "/users"))
