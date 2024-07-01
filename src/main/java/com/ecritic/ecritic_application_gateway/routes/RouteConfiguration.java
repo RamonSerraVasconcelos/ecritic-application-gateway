@@ -1,5 +1,6 @@
 package com.ecritic.ecritic_application_gateway.routes;
 
+import com.ecritic.ecritic_application_gateway.filter.AuthorizationFilter;
 import com.ecritic.ecritic_application_gateway.properties.ServiceProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +14,13 @@ import org.springframework.http.HttpMethod;
 @RequiredArgsConstructor
 public class RouteConfiguration {
 
+    private final AuthorizationFilter authorizationFilter;
+
     @Autowired
-    private ServiceProperties serviceProperties;
+    private final ServiceProperties serviceProperties;
 
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder) {
-
         final String USERS_SERVICE = serviceProperties.getEcriticUsersServiceAddress();
         final String AUTHENTICATION_SERVICE = serviceProperties.getEcriticAuthenticationServiceAddress();
 
@@ -33,20 +35,25 @@ public class RouteConfiguration {
                         .method(HttpMethod.POST)
                         .uri(AUTHENTICATION_SERVICE + "/auth/login"))
 
-                .route("users", r -> r.path("/users")
-                        .uri(USERS_SERVICE + "/users"))
-
-                .route("edit users", r -> r.path("/users/**")
-                        .uri(USERS_SERVICE + "/users"))
+                .route("change-email", r -> r.path("/users/{userId}/change-email")
+                        .filters(f -> f.rewritePath("/users/(?<userId>.*)/change-email", "/users/${userId}/change-email"))
+                        .uri(USERS_SERVICE))
 
                 .route("forgot-password", r -> r.path("/users/forgot-password")
                         .uri(USERS_SERVICE + "/users/forgot-password"))
 
-                .route("reset-password", r -> r.path("/reset-password")
-                        .uri(USERS_SERVICE + "/users/reset-password"))
+                .route("reset-password", r -> r.path("/users/{userId}/reset-password")
+                        .filters(f -> f.rewritePath("/users/(?<userId>.*)/reset-password", "/users/${userId}/reset-password"))
+                        .uri(USERS_SERVICE))
 
-                .route("reset-email", r -> r.path("/reset-email")
-                        .uri(USERS_SERVICE + "/users/reset-email"))
+                .route("users", r -> r.path("/users")
+                        .filters(f -> f.filter(authorizationFilter))
+                        .uri(USERS_SERVICE + "/users"))
+
+                .route("edit users", r -> r.path("/users/**")
+                        .filters(f -> f.filter(authorizationFilter))
+                        .uri(USERS_SERVICE + "/users"))
+
                 .build();
     }
 }
