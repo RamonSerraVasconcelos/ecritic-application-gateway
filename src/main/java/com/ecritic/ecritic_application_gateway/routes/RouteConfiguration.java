@@ -35,6 +35,11 @@ public class RouteConfiguration {
                         .method(HttpMethod.POST)
                         .uri(AUTHENTICATION_SERVICE + "/auth/login"))
 
+                .route("login", r -> r.path("/auth/token")
+                        .and()
+                        .method(HttpMethod.POST)
+                        .uri(AUTHENTICATION_SERVICE + "/auth/token"))
+
                 .route("change-email", r -> r.path("/users/{userId}/change-email")
                         .filters(f -> f.rewritePath("/users/(?<userId>.*)/change-email", "/users/${userId}/change-email"))
                         .uri(USERS_SERVICE))
