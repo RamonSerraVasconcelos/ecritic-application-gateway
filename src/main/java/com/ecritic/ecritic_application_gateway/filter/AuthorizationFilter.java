@@ -30,7 +30,7 @@ public class AuthorizationFilter implements GatewayFilter {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String accessToken = extractToken(exchange);
 
-        if (accessToken == null) {
+        if (!StringUtils.hasText(accessToken)) {
             log.warn("Authorization token not found in request headers");
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
@@ -64,7 +64,7 @@ public class AuthorizationFilter implements GatewayFilter {
     private String extractToken(ServerWebExchange exchange) {
         String bearerToken = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ") && bearerToken.length() > 7) {
             return bearerToken.substring(7);
         }
 
