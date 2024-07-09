@@ -30,15 +30,13 @@ public class RouteConfiguration {
                         .method(HttpMethod.POST)
                         .uri(USERS_SERVICE + "/users"))
 
-                .route("login", r -> r.path("/auth/login")
+                .route("login", r -> r.path("/auth/**")
                         .and()
-                        .method(HttpMethod.POST)
-                        .uri(AUTHENTICATION_SERVICE + "/auth/login"))
+                        .uri(AUTHENTICATION_SERVICE + "/auth"))
 
-                .route("login", r -> r.path("/auth/token")
+                .route("login", r -> r.path("/oauth2/**")
                         .and()
-                        .method(HttpMethod.POST)
-                        .uri(AUTHENTICATION_SERVICE + "/auth/token"))
+                        .uri(AUTHENTICATION_SERVICE + "/oauth2"))
 
                 .route("change-email", r -> r.path("/users/{userId}/change-email")
                         .filters(f -> f.rewritePath("/users/(?<userId>.*)/change-email", "/users/${userId}/change-email"))
