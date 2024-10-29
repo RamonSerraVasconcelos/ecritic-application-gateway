@@ -13,4 +13,5 @@ public class ServiceProperties {
 
     private String ecriticUsersServiceAddress;
     private String ecriticAuthenticationServiceAddress;
+    private String ecriticProductsServiceAddress;
 }

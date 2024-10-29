@@ -23,6 +23,7 @@ public class RouteConfiguration {
     public RouteLocator routes(RouteLocatorBuilder builder) {
         final String USERS_SERVICE = serviceProperties.getEcriticUsersServiceAddress();
         final String AUTHENTICATION_SERVICE = serviceProperties.getEcriticAuthenticationServiceAddress();
+        final String PRODUCTS_SERVICE = serviceProperties.getEcriticProductsServiceAddress();
 
         return builder.routes()
                 .route("register", r -> r.path("/users")
@@ -56,6 +57,10 @@ public class RouteConfiguration {
                 .route("edit users", r -> r.path("/users/**")
                         .filters(f -> f.filter(authorizationFilter))
                         .uri(USERS_SERVICE + "/users"))
+
+                .route("products", r -> r.path("/products/**")
+                        .filters(f -> f.filter(authorizationFilter))
+                        .uri(PRODUCTS_SERVICE + "/products"))
 
                 .build();
     }
